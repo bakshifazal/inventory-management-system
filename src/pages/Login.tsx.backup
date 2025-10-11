@@ -1,0 +1,368 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useStore } from '../store/useStore';
+import { FormSkeleton } from '../components/Skeleton';
+
+interface SocialLoginModalState {
+  show: boolean;
+  provider: string;
+  data?: any;
+}
+
+export function Login() {
+  const navigate = useNavigate();
+  const { login, signup, socialLogin, resetPassword } = useStore();
+  const [isSignup, setIsSignup] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: '',
+    department: '',
+    role: 'staff' as 'admin' | 'manager' | 'staff'
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [socialLoginModal, setSocialLoginModal] = useState<SocialLoginModalState>({
+    show: false,
+    provider: '',
+    data: null
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      if (isForgotPassword) {
+        if (!formData.email) {
+          throw new Error('Please enter your email address');
+        }
+        await resetPassword(formData.email);
+        // Don't show alert here, as resetPassword already shows the reset link
+        setIsForgotPassword(false);
+      } else if (isSignup) {
+        // Check if user already exists
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.some((u: any) => u.email === formData.email)) {
+          alert('User already exists. Please sign in.');
+          setIsSignup(false);
+          setIsLoading(false);
+          return;
+        }
+        await signup(formData);
+      } else {
+        // Check if user exists before attempting login
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (!users.some((u: any) => u.email === formData.email)) {
+          alert('User not found. Please sign up.');
+          setIsSignup(true);
+          setIsLoading(false);
+          return;
+        }
+        await login(formData.email, formData.password);
+      }
+      navigate('/');
+    } catch (err) {
+      setError(
+        isForgotPassword ? 'Password reset failed' :
+        isSignup ? 'Signup failed' : 'Invalid email or password'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialAuth = (provider: 'google' | 'github' | 'facebook' | 'twitter' | 'instagram') => {
+    // In a real app, this would initiate OAuth flow
+    // For demo, we'll simulate getting profile data
+    const mockSocialData = {
+      id: `${provider}_${Date.now()}`,
+      name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
+      email: `user_${Date.now()}@${provider}.com`
+    };
+
+    setSocialLoginModal({
+      show: true,
+      provider,
+      data: mockSocialData
+    });
+  };
+
+  const handleSocialLogin = async (action: 'link' | 'create') => {
+    if (!socialLoginModal.provider || !socialLoginModal.data) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      if (action === 'link') {
+        // Verify existing account before linking
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const existingUser = users.find((u: any) => u.email === formData.email);
+
+        if (!existingUser) {
+          throw new Error('No account found with this email');
+        }
+
+        if (formData.password) {
+          // Verify password before linking
+          await login(formData.email, formData.password);
+        }
+
+        // Link social account to existing account
+        await socialLogin(socialLoginModal.provider, {
+          ...socialLoginModal.data,
+          email: formData.email
+        });
+      } else {
+        // Create new account with social data
+        await socialLogin(socialLoginModal.provider, socialLoginModal.data);
+      }
+
+      setSocialLoginModal({ show: false, provider: '', data: null });
+      navigate('/');
+    } catch (err) {
+      setError(action === 'link' ? 'Account linking failed' : 'Social signup failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const currentFormData = formData;
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    } as typeof currentFormData));
+  };
+
+  return (
+    <div className="login-bg">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="login-container max-w-md w-full space-y-8 p-8 rounded-xl">
+          <div className="text-center">
+            <h2 className="mt-6 text-3xl font-bold text-white">
+              {isForgotPassword ? "Reset Password" : isSignup ? "Create Account" : "Welcome Back"}
+            </h2>
+            <p className="mt-2 text-sm text-neutral-400">
+              {isForgotPassword
+                ? "Enter your email to receive a password reset link"
+                : isSignup
+                ? "Sign up to get started"
+                : "Sign in to continue"}
+            </p>
+          </div>
+
+          {isLoading ? (
+            <div className="mt-8">
+              <FormSkeleton />
+            </div>
+          ) : (
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                {isSignup && (
+                  <>
+                    <div>
+                      <label htmlFor="name" className="text-sm font-medium text-neutral-300">
+                        Name
+                      </label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="department" className="text-sm font-medium text-neutral-300">
+                        Department
+                      </label>
+                      <input
+                        id="department"
+                        name="department"
+                        type="text"
+                        required
+                        value={formData.department}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="role" className="text-sm font-medium text-neutral-300">
+                        Role
+                      </label>
+                      <select
+                        id="role"
+                        name="role"
+                        required
+                        value={formData.role}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="staff">Staff</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <label htmlFor="email" className="text-sm font-medium text-neutral-300">
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {!isForgotPassword && (
+                  <div>
+                    <label htmlFor="password" className="text-sm font-medium text-neutral-300">
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {error && (
+                <div className="rounded-md bg-red-500 bg-opacity-10 p-3">
+                  <p className="text-sm text-red-400">{error}</p>
+                </div>
+              )}
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <span>Loading...</span>
+                  ) : isForgotPassword ? (
+                    "Send Reset Link"
+                  ) : isSignup ? (
+                    "Sign Up"
+                  ) : (
+                    "Sign In"
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignup(!isSignup);
+                    setIsForgotPassword(false);
+                    setError(null);
+                  }}
+                  className="text-sm text-blue-500 hover:text-blue-400"
+                >
+                  {isSignup ? "Already have an account? Sign in" : "Need an account? Sign up"}
+                </button>
+                {!isSignup && !isForgotPassword && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setError(null);
+                    }}
+                    className="text-sm text-blue-500 hover:text-blue-400"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+
+              {!isForgotPassword && (
+                <>
+                  <div className="relative mt-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-neutral-600" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-neutral-800 text-neutral-400">Or continue with</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleSocialAuth('google')}
+                      className="w-full inline-flex justify-center py-2 px-4 border border-neutral-600 rounded-md shadow-sm bg-neutral-700 text-sm font-medium text-neutral-300 hover:bg-neutral-600"
+                    >
+                      Google
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSocialAuth('github')}
+                      className="w-full inline-flex justify-center py-2 px-4 border border-neutral-600 rounded-md shadow-sm bg-neutral-700 text-sm font-medium text-neutral-300 hover:bg-neutral-600"
+                    >
+                      GitHub
+                    </button>
+                  </div>
+                </>
+              )}
+            </form>
+          )}
+
+          {socialLoginModal.show && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-neutral-800 rounded-lg p-6 max-w-sm w-full">
+                <h3 className="text-lg font-medium text-white mb-4">
+                  Link with Existing Account?
+                </h3>
+                <p className="text-neutral-400 mb-6">
+                  Would you like to link this {socialLoginModal.provider} account with an existing account or create a new one?
+                </p>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => handleSocialLogin('create')}
+                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Create New Account
+                  </button>
+                  <button
+                    onClick={() => handleSocialLogin('link')}
+                    className="w-full py-2 px-4 border border-neutral-600 rounded-md shadow-sm text-sm font-medium text-white bg-neutral-700 hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+                  >
+                    Link with Existing Account
+                  </button>
+                  <button
+                    onClick={() => setSocialLoginModal({ show: false, provider: '', data: null })}
+                    className="w-full py-2 px-4 border border-neutral-600 rounded-md shadow-sm text-sm font-medium text-neutral-400 bg-transparent hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
