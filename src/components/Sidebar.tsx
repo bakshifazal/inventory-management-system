@@ -1,8 +1,12 @@
 import React from 'react'
+interface SidebarProps {
+  open?: boolean
+  onClose?: () => void
+}
 import { Link, useLocation } from 'react-router-dom'
 import { useStore } from '../store/useStore'
 
-export function Sidebar() {
+export function Sidebar({ open = false, onClose }: SidebarProps) {
   const location = useLocation()
   const { currentUser, logout } = useStore()
 
@@ -13,7 +17,16 @@ export function Sidebar() {
   ]
 
   return (
-    <div className="w-64 bg-surface border-r border-border h-full flex flex-col">
+    <>
+      {/* Mobile overlay */}
+      <div
+        className={`fixed inset-0 bg-black/50 z-30 transition-opacity lg:hidden ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        onClick={onClose}
+      />
+
+      <div
+        className={`fixed z-40 top-0 left-0 h-full transform transition-transform lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} w-64 bg-surface border-r border-border flex flex-col`}
+      >
       <div className="p-6">
         <h1 className="text-2xl font-bold text-primary">InventoryPro</h1>
         <p className="text-textSecondary text-sm mt-1">Asset & Stock Management</p>
@@ -56,6 +69,7 @@ export function Sidebar() {
           Logout
         </button>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
@@ -13,6 +13,7 @@ import { ResetPassword } from './pages/ResetPassword'
 
 function App() {
   const { isAuthenticated } = useStore()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (!isAuthenticated) {
     return (
@@ -26,12 +27,14 @@ function App() {
     )
   }
 
+  const toggleSidebar = () => setSidebarOpen((s) => !s)
+
   return (
     <Router>
       <div className="flex h-screen bg-background">
-        <Sidebar />
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header />
+          <Header onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
           <main className="flex-1 overflow-y-auto p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
