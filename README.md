@@ -1,17 +1,30 @@
 # Inventory Management System
 
-A modern inventory management system built with React, TypeScript, Tailwind CSS, and Supabase.
+A modern, full-featured inventory management system built with React, TypeScript, and Tailwind CSS.
+
+![Inventory Management System](https://raw.githubusercontent.com/bakshifazal/inventory-management-system/main/public/preview.png)
 
 ## Features
 
-- User Authentication (Login/Signup)
-- Password Reset with Email
-- Asset Management
-- Stock Management
-- Dashboard Analytics
-- Role-based Access Control
-- Real-time Updates
-- Responsive Design
+- 🔐 **User Authentication**
+  - Login/Signup with email
+  - Password reset functionality
+  - Role-based access control (Admin, Manager, Staff)
+
+- 📦 **Asset Management**
+  - Track computers, printers, and other equipment
+  - Asset assignment and status tracking
+  - Warranty and maintenance tracking
+
+- 📊 **Stock Management**
+  - Real-time inventory tracking
+  - Low stock alerts
+  - Stock movement history
+
+- 📈 **Dashboard Analytics**
+  - Asset utilization metrics
+  - Stock level visualization
+  - Activity logs
 
 ## Tech Stack
 
