@@ -11,36 +11,47 @@ export function Header({ onToggleSidebar, sidebarOpen }: HeaderProps) {
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy')
 
   return (
-    <header className="bg-surface border-b border-border p-3 sm:p-4 lg:p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-4">
+    <header className="bg-surface border-b border-border sticky top-0 z-10">
+      <div className="flex items-center justify-between h-14 md:h-16 px-3 md:px-6">
+        <div className="flex items-center gap-3 md:gap-4">
           <button
-            className="p-1.5 sm:p-2 rounded-lg bg-surface border border-border md:hidden focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="p-2 -ml-1 rounded-lg hover:bg-background/50 active:bg-background md:hidden focus:outline-none focus:ring-2 focus:ring-primary/20"
             onClick={onToggleSidebar}
             aria-expanded={sidebarOpen}
             aria-label="Toggle sidebar"
           >
-            <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 5H17M3 10H17M3 15H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg className="w-6 h-6 text-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          <div>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-text truncate">
+          <div className="min-w-0">
+            <h1 className="text-base md:text-xl font-bold text-text truncate max-w-[200px] sm:max-w-none">
               Welcome back, {currentUser?.name?.split(' ')[0] || 'User'}!
             </h1>
-            <p className="text-xs sm:text-sm text-textSecondary mt-0.5 sm:mt-1 hidden sm:block">
+            <p className="text-xs text-textSecondary mt-0.5 truncate hidden sm:block">
               {currentDate}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <button className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-surface border border-border hover:bg-surface/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
-            <span className="text-xl">🔔</span>
+        <div className="flex items-center gap-2">
+          <button 
+            className="p-2 rounded-lg hover:bg-background/50 active:bg-background transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label="Notifications"
+          >
+            <svg className="w-5 h-5 text-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
           </button>
-          <button className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-surface border border-border hover:bg-surface/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
-            <span className="text-xl">⚙️</span>
+          <button 
+            className="p-2 rounded-lg hover:bg-background/50 active:bg-background transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label="Settings"
+          >
+            <svg className="w-5 h-5 text-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
           </button>
         </div>
       </div>

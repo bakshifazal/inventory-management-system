@@ -40,20 +40,22 @@ function App() {
 
   return (
     <Router>
-      <div className="flex h-screen bg-background md:flex-row flex-col">
+      <div className="flex h-screen bg-background overflow-hidden">
         {/* Sidebar overlays on mobile, static on desktop */}
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0">
           <Header onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 max-w-full w-full">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/assets" element={<Assets />} />
-              <Route path="/assets/:id" element={<AssetDetails />} />
-              <Route path="/stock" element={<Stock />} />
-              <Route path="/stock/:id" element={<StockDetails />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background/50">
+            <div className="container mx-auto px-3 py-4 md:px-6 md:py-6 max-w-7xl">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/assets" element={<Assets />} />
+                <Route path="/assets/:id" element={<AssetDetails />} />
+                <Route path="/stock" element={<Stock />} />
+                <Route path="/stock/:id" element={<StockDetails />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
           </main>
         </div>
       </div>

@@ -16,45 +16,78 @@
 }
 
 @layer components {
-  /* Responsive container utilities */
-  .container-responsive {
-    @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  /* Base Layout */
+  .layout-container {
+    @apply flex min-h-screen bg-background;
   }
 
   /* Card styles with responsive padding */
   .card-responsive {
-    @apply bg-surface border border-border rounded-lg p-3 sm:p-4 lg:p-6;
+    @apply bg-surface border border-border rounded-lg p-3 md:p-4 shadow-sm hover:shadow-md transition-shadow duration-200;
   }
 
   /* Grid layouts for different screen sizes */
   .grid-responsive {
-    @apply grid gap-4 sm:gap-6;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    @apply grid gap-3 md:gap-4;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   }
 
   /* Responsive text utilities */
   .text-responsive-xl {
-    @apply text-lg sm:text-xl lg:text-2xl;
+    @apply text-lg md:text-xl font-bold;
   }
   
   .text-responsive-base {
-    @apply text-sm sm:text-base lg:text-lg;
+    @apply text-sm md:text-base;
   }
   
   /* Responsive spacing utilities */
   .space-responsive {
-    @apply space-y-3 sm:space-y-4 lg:space-y-6;
+    @apply space-y-3 md:space-y-4;
   }
   
   /* Form input responsive styles */
   .input-responsive {
-    @apply w-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base rounded-lg border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20;
+    @apply w-full px-3 py-2 text-sm md:text-base rounded-lg border border-border bg-surface/50 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors;
   }
   
   /* Button responsive styles */
   .button-responsive {
-    @apply px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors;
+    @apply px-3 py-2 text-sm md:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
   }
+
+  /* Interactive elements */
+  .interactive-hover {
+    @apply hover:bg-background/50 active:bg-background transition-colors;
+  }
+
+  /* Mobile optimizations */
+  .mobile-touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .mobile-safe-area {
+    @apply px-3 py-4 md:px-6 md:py-6;
+  }
+
+  /* Typography */
+  .text-title {
+    @apply text-base md:text-xl font-bold text-text;
+  }
+
+  .text-subtitle {
+    @apply text-sm text-textSecondary;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex items-center px-3 py-2.5 rounded-lg transition-all gap-3 hover:bg-background/50 active:bg-background;
+  }
+
+  .nav-item-active {
+    @apply bg-primary/10 text-primary;
+  }
+}
 }
 
 .login-bg {
